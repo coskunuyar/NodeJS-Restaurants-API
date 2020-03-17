@@ -4,9 +4,15 @@ const { getFoods ,getFood,addFood,updateFood, deleteFood } = require('../control
 
 const router = express.Router({ mergeParams: true });
 
+const Food = require('../models/Food');
+const advancedResults = require('../middleware/advancedResults');
+
 router
   .route('/')
-  .get(getFoods)
+  .get(advancedResults(Food, {
+    path: 'restaurants',
+    select: 'name description'
+  }),getFoods)
   .post(addFood);
 
 router

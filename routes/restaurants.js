@@ -8,6 +8,11 @@ const {
     getRestaurantsInRadius,
     restaurantPhotoUpload
 } = require('../controllers/restaurants');
+
+
+const Restaurant = require('../models/Restaurant');
+const advancedResults = require('../middleware/advancedResults');
+
 const foodRouter = require('./foods');
 
 const router = express.Router();
@@ -22,7 +27,7 @@ router
 
 router
   .route('/')
-  .get(getRestaurants)
+  .get(advancedResults(Restaurant,'foods'),getRestaurants)
   .post(createRestaurant);
 
 router
