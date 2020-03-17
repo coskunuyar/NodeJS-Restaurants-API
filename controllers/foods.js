@@ -13,7 +13,10 @@ exports.getFoods = asyncHandler(async (req, res, next) => {
     if (req.params.restaurantId) {
       query = Food.find({ restaurant: req.params.restaurantId });
     } else {
-      query = Food.find();
+      query = Food.find().populate({
+        path: 'restaurant',
+        select: 'name description'
+      });
     }
   
     const foods = await query;

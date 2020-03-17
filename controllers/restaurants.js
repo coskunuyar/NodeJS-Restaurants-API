@@ -15,7 +15,7 @@ exports.getRestaurants = asyncHandler(async(req, res, next) => {
     let queryStr = JSON.stringify(reqQuery);
     queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
 
-    query = Restaurant.find(JSON.parse(queryStr));
+    query = Restaurant.find(JSON.parse(queryStr)).populate('foods');
 
   // Select Fields
   if (req.query.select) {
@@ -127,8 +127,9 @@ exports.updateRestaurant = asyncHandler(async (req, res, next) => {
 // @route     DELETE /api/v1/restaurants/:id
 // @access    Private
 exports.deleteRestaurant = asyncHandler(async (req, res, next) => {
-      const restaurant = await Restaurant.findByIdAndDelete(req.params.id);
+      const restaurant = await Restaurant.findById(req.params.id);
       if(restaurant){
+        restaurant.remove();
         res.status(200).json({ success: true });
       }else{
         next(new ErrorResponse(`Restaurant not found - id: ${req.params.id}`));

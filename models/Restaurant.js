@@ -67,6 +67,9 @@ const RestaurantSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   }
+},{
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
 });
 
 RestaurantSchema.pre('save', function(next){
@@ -89,5 +92,18 @@ RestaurantSchema.pre('save', async function(next) {
 
   this.address = undefined;
   next();
+});
+
+
+RestaurantSchema.pre('remove', async function(next) {
+  await this.model('Food').deleteMany({ food: this._id });
+  next();
+});
+
+RestaurantSchema.virtual('foods', {
+  ref: 'Food',
+  localField: '_id',
+  foreignField: 'restaurant',
+  justOne: false
 });
 module.exports = mongoose.model('Restaurant', RestaurantSchema);
