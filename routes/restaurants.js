@@ -5,15 +5,20 @@ const {
     createRestaurant,
     updateRestaurant,
     deleteRestaurant,
-    getRestaurantsInRadius
+    getRestaurantsInRadius,
+    restaurantPhotoUpload
 } = require('../controllers/restaurants');
 const foodRouter = require('./foods');
 
 const router = express.Router();
 
 router
-    .route('/radius/:zipcode/:distance')
-    .get(getRestaurantsInRadius);
+  .route('/radius/:zipcode/:distance')
+  .get(getRestaurantsInRadius);
+
+router
+  .route('/:id/photo')
+  .put(restaurantPhotoUpload);
 
 router
   .route('/')
