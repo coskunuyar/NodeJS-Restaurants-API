@@ -15,6 +15,7 @@ connectDB();
 // Route files
 const restaurants = require('./routes/restaurants');
 const foods = require('./routes/foods');
+const auth = require('./routes/auth');
 
 const app = express();
 app.use(express.json());
@@ -29,6 +30,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Mount routers
 app.use('/api/v1/restaurants', restaurants);
 app.use('/api/v1/foods',foods);
+app.use('/api/v1/auth', auth);
 app.use(errorHandler);
   
 const PORT = process.env.PORT || 5000;
