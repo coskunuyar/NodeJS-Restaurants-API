@@ -25,4 +25,35 @@ const FoodSchema = new mongoose.Schema({
   }
 });
 
+FoodSchema.statics.getAverageCost = async function(restaurantId) {
+  const obj = await this.aggregate([
+    {
+      $match: { restaurant: restaurantId }
+    },
+    {
+      $group: {
+        _id: '$restaurant',
+        averageCost: { $avg: '$cost' } 
+      }
+    }
+  ]);
+
+  try {
+    await this.model('Restaurant').findByIdAndUpdate(restaurantId, {
+      averageCost: Math.ceil(obj[0].averageCost / 10) * 10
+    });
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+FoodSchema.post('save', function() {
+  this.constructor.getAverageCost(this.restaurant);
+});
+
+FoodSchema.pre('remove', function() {
+  this.constructor.getAverageCost(this.restaurant);
+});
+
+
 module.exports = mongoose.model('Food', FoodSchema);

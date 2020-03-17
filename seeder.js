@@ -25,7 +25,7 @@ const foods = JSON.parse(fs.readFileSync(`${__dirname}/_data/foods.json`, 'utf-8
 // Import into DB
 const importData = async () => {
   try {
-    await Restaurant.create(restaurants);
+    // await Restaurant.create(restaurants);
     await Food.create(foods);
 
     console.log('Data Imported...'.green.inverse);
