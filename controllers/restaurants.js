@@ -156,13 +156,10 @@ exports.restaurantPhotoUpload = asyncHandler(async (req, res, next) => {
   }
 
   const file = req.files.file;
-
-  // Make sure the image is a photo
   if (!file.mimetype.startsWith('image')) {
     return next(new ErrorResponse(`Please upload an image file`, 400));
   }
 
-  // Check filesize
   if (file.size > process.env.MAX_FILE_UPLOAD) {
     return next(
       new ErrorResponse(
@@ -172,7 +169,6 @@ exports.restaurantPhotoUpload = asyncHandler(async (req, res, next) => {
     );
   }
 
-  // Create custom filename
   file.name = `photo_${restaurant._id}${path.parse(file.name).ext}`;
 
   file.mv(`${process.env.FILE_UPLOAD_PATH}/${file.name}`, async err => {
