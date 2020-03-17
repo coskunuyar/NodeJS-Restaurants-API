@@ -7,6 +7,7 @@ const {
     deleteRestaurant,
     getRestaurantsInRadius
 } = require('../controllers/restaurants');
+const foodRouter = require('./foods');
 
 const router = express.Router();
 
@@ -24,5 +25,8 @@ router
   .get(getRestaurant)
   .put(updateRestaurant)
   .delete(deleteRestaurant);
+
+router.use('/:restaurantId/foods', foodRouter);
+
 
 module.exports = router;

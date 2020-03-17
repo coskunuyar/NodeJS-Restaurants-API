@@ -12,6 +12,7 @@ connectDB();
 
 // Route files
 const restaurants = require('./routes/restaurants');
+const foods = require('./routes/foods');
 
 const app = express();
 app.use(express.json());
@@ -22,6 +23,7 @@ if (process.env.NODE_ENV === 'development') {
 
 // Mount routers
 app.use('/api/v1/restaurants', restaurants);
+app.use('/api/v1/foods',foods);
 app.use(errorHandler);
   
 const PORT = process.env.PORT || 5000;
