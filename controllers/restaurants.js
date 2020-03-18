@@ -49,23 +49,32 @@ exports.getRestaurant = asyncHandler(async (req, res, next) => {
 // @route     POST /api/v1/restaurants
 // @access    Private
 exports.createRestaurant = asyncHandler(async (req, res, next) => {
+      req.body.user = req.user.id;
+      const publishedRestaurant = await Restaurant.findOne({ user: req.user.id});
+      if(publishedRestaurant && req.user.role !== 'admin' ){
+        return next(new ErrorResponse( `The user with ID ${req.user.id} has already published a restaurant`, 400))
+      }
       const restaurant = await Restaurant.create(req.body);
-        res.status(200).json({ success: true , data: restaurant});
+      res.status(200).json({ success: true , data: restaurant});
 });
   
 // @desc      Update restaurant
 // @route     PUT /api/v1/restaurants/:id
 // @access    Private
 exports.updateRestaurant = asyncHandler(async (req, res, next) => {
-      const restaurant = await Restaurant.findByIdAndUpdate(req.params.id,req.body, {
+      let restaurant = await Restaurant.findById(req.params.id);
+      if(!restaurant){
+        next(new ErrorResponse(`Restaurant not found - id: ${req.params.id}`));
+      }
+      if (restaurant.user.toString() !== req.user.id && req.user.role !== 'admin') {
+        return next( new ErrorResponse(`User ${req.params.id} is not authorized to update this restaurant.`, 401));
+      }
+      restaurant = await Restaurant.findOneAndUpdate(req.params.id, req.body, {
         new: true,
         runValidators: true
       });
-      if(restaurant){
-        res.status(200).json({success: true , data: restaurant});
-      }else{
-        next(new ErrorResponse(`Restaurant not found - id: ${req.params.id}`));
-      }
+    
+      res.status(200).json({ success: true, data: restaurant });
   });
   
 // @desc      Delete restaurant
@@ -73,12 +82,14 @@ exports.updateRestaurant = asyncHandler(async (req, res, next) => {
 // @access    Private
 exports.deleteRestaurant = asyncHandler(async (req, res, next) => {
       const restaurant = await Restaurant.findById(req.params.id);
-      if(restaurant){
-        restaurant.remove();
-        res.status(200).json({ success: true });
-      }else{
-        next(new ErrorResponse(`Restaurant not found - id: ${req.params.id}`));
+      if(!restaurant){
+        return next(new ErrorResponse(`Restaurant not found - id: ${req.params.id}`));
       }
+      if(restaurant.user.toString() !== req.user.id && req.user.role !== 'admin'){
+        return next(new ErrorResponse(`User ${req.params.id} is not authorized to delete this restaurant.`,401));
+      }
+      await restaurant.remove();
+      res.status(200).json({ success: true });
 });
 
 

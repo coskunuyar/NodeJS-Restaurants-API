@@ -10,7 +10,7 @@ const Restaurant = require('../models/Restaurant');
 // @access    Public
 exports.getFoods = asyncHandler(async (req, res, next) => {
     if (req.params.restaurantId) {
-      const foods = await Food.find({ bootcamp: req.params.bootcampId });
+      const foods = await Food.find({ restaurant: req.params.restaurantId });
       return res.status(200).json({
         success: true,
         count: foods.length,
@@ -43,14 +43,16 @@ exports.getFood= asyncHandler(async (req, res, next) => {
 // @access    Private
 exports.addFood = asyncHandler(async (req, res, next) => {
   req.body.restaurant = req.params.restaurantId;
+  req.body.user = req.user.id;
 
   const restaurant = await Restaurant.findById(req.params.restaurantId);
 
   if (!restaurant) {
-    return next(
-      new ErrorResponse(`No restaurant with the id of ${req.params.restaurantId}`),
-      404
-    );
+    return next( new ErrorResponse(`No restaurant with the id of ${req.params.restaurantId}`), 404);
+  }
+
+  if(restaurant.user.toString() !== req.user.id && req.user.role !== 'admin'){
+    return next( new ErrorResponse(`User ${req.user.id} is not owner`,401));
   }
 
   const food = await Food.create(req.body);
@@ -75,6 +77,10 @@ exports.updateFood = asyncHandler(async (req, res, next) => {
     );
   }
 
+  if(food.user.toString() !== req.user.id && req.user.role !== 'admin'){
+    return next( new ErrorResponse(`User ${req.user.id} is not owner`,401));
+  }
+
   food = await Food.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true
@@ -95,6 +101,10 @@ exports.deleteFood = asyncHandler(async (req, res, next) => {
 
   if (!food) {
     return next( new ErrorResponse(`No food with the id of ${req.params.id}`),404);
+  }
+
+  if(food.user.toString() !== req.user.id && req.user.role !== 'admin'){
+    return next( new ErrorResponse(`User ${req.user.id} is not owner`,401));
   }
 
   await food.remove();
