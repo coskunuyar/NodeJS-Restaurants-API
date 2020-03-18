@@ -106,6 +106,10 @@ exports.restaurantPhotoUpload = asyncHandler(async (req, res, next) => {
     );
   }
 
+  if(restaurant.user.toString() !== req.user.id && req.user.role !== 'admin'){
+    return next(new ErrorResponse(`User ${req.params.id} is not authorized to delete this restaurant.`,401));
+  }
+
   if (!req.files) {
     return next(new ErrorResponse(`Please upload a file`, 400));
   }
