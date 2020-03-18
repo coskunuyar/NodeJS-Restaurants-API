@@ -6,6 +6,7 @@ const router = express.Router({ mergeParams: true });
 
 const Food = require('../models/Food');
 const advancedResults = require('../middleware/advancedResults');
+const { protect } = require('../middleware/auth');
 
 router
   .route('/')
@@ -13,12 +14,12 @@ router
     path: 'restaurants',
     select: 'name description'
   }),getFoods)
-  .post(addFood);
+  .post(protect,addFood);
 
 router
   .route('/:id')
   .get(getFood)
-  .put(updateFood)
-  .delete(deleteFood);
+  .put(protect,updateFood)
+  .delete(protect,deleteFood);
 
 module.exports = router;
