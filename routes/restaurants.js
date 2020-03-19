@@ -11,12 +11,12 @@ const {
 
 
 const Restaurant = require('../models/Restaurant');
-const advancedResults = require('../middleware/advancedResults');
 
 const foodRouter = require('./foods');
 const { protect , authorize} = require('../middleware/auth');
 
 const router = express.Router();
+const advancedResults = require('../middleware/advancedResults');
 
 router
   .route('/radius/:zipcode/:distance')
