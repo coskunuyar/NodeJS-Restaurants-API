@@ -63,3 +63,21 @@ const sendTokenResponse = (user,statusCode,res) => {
     token
   });
 }
+
+
+
+// @desc      Forgot password
+// @route     POST /api/v1/auth/forgotpassword
+// @access    Public
+exports.forgotPassword = asyncHandler(async (req,res,next) => {
+    const user = await User.findOne({email: req.body.email});
+    if(!user){
+        return next(new ErrorResponse('There is no such user.',404));
+    }
+    const resetToken = user.getResetPasswordToken();
+    user.save({validateBeforeSave: false});
+    res.status(200).json({
+      success: true,
+      data: user
+    })
+});
