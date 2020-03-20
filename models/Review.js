@@ -21,9 +21,9 @@ const ReviewSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    bootcamp:{
+    restaurant:{
         type: mongoose.Schema.ObjectId,
-        ref: 'Bootcamp',
+        ref: 'Restaurant',
         required: true
     },
     user: {
@@ -31,6 +31,36 @@ const ReviewSchema = new mongoose.Schema({
         ref:'User',
         required: true
     }
+});
+
+ReviewSchema.index({restaurant: 1, user: 1} , { unique: true});
+
+ReviewSchema.statics.getAverageRating = async function(restaurantId){
+    const obj = await this.aggregate([
+        {
+          $match: { restaurant: restaurantId }
+        },
+        {
+          $group: {
+            _id: '$restaurant',
+            averageRating: { $avg: '$rating' }
+          }
+        }
+      ]);
+
+      try{
+        await this.model('Restaurant').findByIdAndUpdate(restaurantId, { averageRating: obj[0].averageRating });
+      }catch(err){
+        console.log(err);
+      }
+}
+
+ReviewSchema.post('save', function() {
+    this.constructor.getAverageRating(this.restaurant);
+});
+
+ReviewSchema.pre('remove', function() {
+    this.constructor.getAverageRating(this.restaurant);
 });
 
 module.exports = mongoose.model('Review',ReviewSchema);
