@@ -13,6 +13,8 @@ const {
 const Restaurant = require('../models/Restaurant');
 
 const foodRouter = require('./foods');
+const reviewRouter = require('./reviews');
+
 const { protect , authorize} = require('../middleware/auth');
 
 const router = express.Router();
@@ -38,6 +40,7 @@ router
   .delete(protect,authorize('owner','admin'),deleteRestaurant);
 
 router.use('/:restaurantId/foods', foodRouter);
+router.use('/:restaurantId/reviews', reviewRouter);
 
 
 module.exports = router;
