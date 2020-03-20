@@ -8,6 +8,15 @@ const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
 const errorHandler = require('./middleware/error');
 
+// Security
+const mongoSanitize = require('express-mongo-sanitize');
+const helmet = require('helmet');
+const xss = require('xss-clean');
+const rateLimit = require('express-rate-limit');
+const hpp = require('hpp');
+const cors = require('cors');
+//
+
 dotenv.config({path:'./config/config.env'});
 
 // Connect to database
@@ -19,7 +28,15 @@ const foods = require('./routes/foods');
 const auth = require('./routes/auth');
 const users = require('./routes/users');
 const reviews = require('./routes/reviews');
+
 const app = express();
+
+app.use(mongoSanitize());
+app.use(helmet());
+app.use(xss());
+app.use(rateLimit({ windowMs: 10 * 60 * 1000, max: 100 }));
+app.use(hpp());
+app.use(cors());
 
 app.use(express.json());
 app.use(cookieParser());
